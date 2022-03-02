@@ -10,7 +10,8 @@
 #include <qboot_gzip.h>
 
 #ifdef QBOOT_USING_GZIP
-
+#include <string.h>
+#define ZLIB_CONST
 #include <zlib.h>
 
 static z_stream qbt_strm;
