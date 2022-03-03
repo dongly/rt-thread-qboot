@@ -8,10 +8,10 @@
 
 #ifndef __QBOOT_H__
 #define __QBOOT_H__
+#include "rtconfig.h"
 
 #include "typedef.h"
 #include <fal_cfg.h>
-#include <rtconfig.h>
 
 //#define QBOOT_USING_PRODUCT_CODE
 //#define QBOOT_USING_AES
@@ -106,5 +106,7 @@
 #define QBOOT_THREAD_PRIO 5
 #endif
 
+#ifdef QBOOT_USING_FACTORY_CHECK
 void qbt_factory_check_set_hook(check_func_t hook);
+#endif // QBOOT_USING_FACTORY_CHECK
 #endif
