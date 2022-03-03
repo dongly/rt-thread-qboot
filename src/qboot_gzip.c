@@ -31,7 +31,7 @@ void qbt_gzip_set_in(const u8 *in_buf, u32 in_size)
 int qbt_gzip_decompress(u8 *out_buf, u32 out_buf_size)
 {
     int ret;
-    
+
     qbt_strm.next_out = out_buf;
     qbt_strm.avail_out = out_buf_size;
 
@@ -43,10 +43,10 @@ int qbt_gzip_decompress(u8 *out_buf, u32 out_buf_size)
     case Z_DATA_ERROR:
     case Z_MEM_ERROR:
         inflateEnd(&qbt_strm);
-        return(ret);
+        return ret;
     }
 
-    return(out_buf_size - qbt_strm.avail_out);
+    return out_buf_size - qbt_strm.avail_out;
 }
 
 void qbt_gzip_deinit(void)
@@ -54,4 +54,3 @@ void qbt_gzip_deinit(void)
     inflateEnd(&qbt_strm);
 }
 #endif
-

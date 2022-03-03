@@ -22,18 +22,17 @@ void qbt_quicklz_state_init(void)
 u32 qbt_quicklz_get_block_size(const u8 *comp_datas)
 {
     u32 block_size = 0;
-    for(int i = 0; i < QBOOT_QUICKLZ_BLOCK_HDR_SIZE; i++)
+    for (int i = 0; i < QBOOT_QUICKLZ_BLOCK_HDR_SIZE; i++)
     {
         block_size <<= 8;
         block_size += comp_datas[i];
     }
-    return(block_size);
+    return block_size;
 }
 
 u32 qbt_quicklz_decompress(u8 *out_buf, const u8 *in_buf)
 {
-    return(qlz_decompress((char *)in_buf, out_buf, &qbt_quicklz_state));
+    return qlz_decompress((char *)in_buf, out_buf, &qbt_quicklz_state);
 }
 
 #endif
-
