@@ -9,6 +9,8 @@
 #ifndef __TYPEDEF_H__
 #define __TYPEDEF_H__
 //---------------------------------------
+#include <stdbool.h>
+
 typedef signed char      s8;
 typedef signed short     s16;
 typedef signed long      s32;

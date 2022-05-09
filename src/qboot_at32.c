@@ -54,14 +54,14 @@ void qbt_jump_to_app(void)
 
 static void qbt_reset_periph(void)
 {
-    RCC->AHBRST = 0xFFFFFFFF;
-    RCC->AHBRST = 0x00000000;
+    CRM->ahbrst = 0xFFFFFFFF;
+    CRM->ahbrst = 0x00000000;
 
-    RCC->APB1RST = 0xFFFFFFFF;
-    RCC->APB1RST = 0x00000000;
+    CRM->apb1rst = 0xFFFFFFFF;
+    CRM->apb1rst = 0x00000000;
 
-    RCC->APB2RST = 0xFFFFFFFF;
-    RCC->APB2RST = 0x00000000;
+    CRM->apb2rst = 0xFFFFFFFF;
+    CRM->apb2rst = 0x00000000;
 }
 
 void qbt_jump_to_app(void)
@@ -93,7 +93,7 @@ void qbt_jump_to_app(void)
     SysTick->LOAD = 0;
     SysTick->VAL = 0;
 
-    RCC_Reset();
+    crm_reset();
 
     __set_CONTROL(0);
     __set_MSP(stk_addr);

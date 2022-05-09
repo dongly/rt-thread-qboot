@@ -109,4 +109,5 @@
 #ifdef QBOOT_USING_FACTORY_CHECK
 void qbt_factory_check_set_hook(check_func_t hook);
 #endif // QBOOT_USING_FACTORY_CHECK
+void qbt_jump_to_app(void);
 #endif
