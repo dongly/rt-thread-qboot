@@ -19,6 +19,7 @@
 #include <qboot_quicklz.h>
 #include <rtdevice.h>
 #include <rtthread.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "crc32.h"
@@ -960,12 +961,12 @@ static rt_tick_t   key_check_timeout_tick = 0;
 static qbt_check_t qbt_factory_key_check(void)
 {
     qbt_check_t ret = QBT_CHECK_FALSE;
-    static bool is_init = FALSE;
+    static bool is_init = false;
 
-    if (is_init == FALSE)
+    if (is_init == false)
     {
         key_check_timeout_tick = rt_tick_get() + QBOOT_FACTORY_KEY_CHK_TMO * RT_TICK_PER_SECOND;
-        is_init = TRUE;
+        is_init = true;
         if (rt_pin_read(QBOOT_FACTORY_KEY_PIN) != QBOOT_FACTORY_KEY_LEVEL)
         {
 #ifdef QBOOT_USING_STATUS_LED
