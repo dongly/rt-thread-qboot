@@ -821,30 +821,26 @@ static bool qbt_fw_check(const char *fw_part_name, fw_info_t *fw_info, bool outp
 {
     if (!qbt_part_is_exist(fw_part_name))
     {
-        if (output_log)
-            LOG_E("Qboot firmware check fail. partition %d is not exist.", fw_part_name);
-        return false;
+        if (output_log) LOG_E("Qboot firmware check fail. partition \"%s\" is not exist.", fw_part_name);
+        return(false);
     }
 
     if (!qbt_fw_info_read(fw_part_name, fw_info, false))
     {
-        if (output_log)
-            LOG_E("Qboot firmware check fail. read firmware infomation fail.");
-        return false;
+        if (output_log) LOG_E("Qboot firmware check fail. partition \"%s\" read fail.", fw_part_name);
+        return(false);
     }
 
     if (!qbt_fw_info_check(fw_info))
     {
-        if (output_log)
-            LOG_E("Qboot firmware check fail. firmware infomation check fail.");
-        return false;
+        if (output_log) LOG_E("Qboot firmware check fail. partition \"%s\" infomation check fail.", fw_part_name);
+        return(false);
     }
 
     if (!qbt_fw_crc_check(fw_part_name, sizeof(fw_info_t), fw_info->pkg_size, fw_info->pkg_crc))
     {
-        if (output_log)
-            LOG_E("Qboot firmware check fail. firmware body check fail.");
-        return false;
+        if (output_log) LOG_E("Qboot firmware check fail. partition \"%s\" body check fail.", fw_part_name);
+        return(false);
     }
 
 #ifdef QBOOT_USING_APP_CHECK
@@ -852,17 +848,15 @@ static bool qbt_fw_check(const char *fw_part_name, fw_info_t *fw_info, bool outp
     {
         if (!qbt_app_crc_check(fw_part_name, fw_info))
         {
-            if (output_log)
-                LOG_E("Qboot firmware check fail. firmware app check fail.");
-            return false;
+            if (output_log) LOG_E("Qboot firmware check fail. partition \"%s\" app check fail.", fw_part_name);
+            return(false);
         }
     }
 #endif
 
-    if (output_log)
-        LOG_D("Qboot firmware check success.");
-
-    return true;
+    if (output_log) LOG_D("Qboot partition \"%s\" firmware check success.", fw_part_name);
+    
+    return(true);
 }
 
 static bool qbt_fw_update(const char *dst_part_name, const char *src_part_name, fw_info_t *fw_info)
@@ -871,8 +865,8 @@ static bool qbt_fw_update(const char *dst_part_name, const char *src_part_name, 
 
     if (!qbt_part_is_exist(dst_part_name))
     {
-        LOG_E("Qboot firmware update fail. destination partition %d is not exist.", dst_part_name);
-        return false;
+        LOG_E("Qboot firmware update fail. destination partition %s is not exist.", dst_part_name);
+        return(false);
     }
 
 #ifdef QBOOT_USING_STATUS_LED
@@ -919,19 +913,18 @@ RT_WEAK void qbt_jump_to_app(void)
 
     __disable_irq();
     HAL_DeInit();
+    HAL_RCC_DeInit();
+    
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL = 0;
 
     for (int i = 0; i < 128; i++)
     {
         HAL_NVIC_DisableIRQ(i);
         HAL_NVIC_ClearPendingIRQ(i);
     }
-
-    SysTick->CTRL = 0;
-    SysTick->LOAD = 0;
-    SysTick->VAL = 0;
-
-    HAL_RCC_DeInit();
-
+    
     __set_CONTROL(0);
     __set_MSP(stk_addr);
 
@@ -1096,6 +1089,10 @@ static bool qbt_shell_key_check(void)
 
     while (rt_tick_get() - tick_start < tmo)
     {
+        if (rt_sem_take(qbt_shell_sem, 100) != RT_EOK)
+        {
+            continue;
+        }
         if (rt_device_read(qbt_shell_dev, -1, &ch, 1) > 0)
         {
             if (ch == 0x0d)
@@ -1104,7 +1101,6 @@ static bool qbt_shell_key_check(void)
             }
             continue;
         }
-        rt_sem_take(qbt_shell_sem, 100);
     }
 
     return false;
