@@ -50,13 +50,13 @@
 
 #include <rtdbg.h>
 
-#define QBOOT_VER_MSG      "V1.0.5 2020.10.05"
-#define QBOOT_SHELL_PROMPT "Qboot>"
+#define QBOOT_VER_MSG                   "V1.0.7 2024.06.03"
+#define QBOOT_SHELL_PROMPT              "Qboot>"
 
 #define QBOOT_BUF_SIZE 4096 // must is 4096
 #if (defined(QBOOT_USING_QUICKLZ) || defined(QBOOT_USING_FASTLZ))
-#define QBOOT_CMPRS_READ_SIZE 1024 // it can is 512, 1024, 2048, 4096,
-#define QBOOT_CMPRS_BUF_SIZE  (QBOOT_BUF_SIZE + QBOOT_CMPRS_READ_SIZE)
+#define QBOOT_CMPRS_READ_SIZE           4096 //it can is 512, 1024, 2048, 4096,
+#define QBOOT_CMPRS_BUF_SIZE            (QBOOT_BUF_SIZE + QBOOT_CMPRS_READ_SIZE)
 #else
 #define QBOOT_CMPRS_READ_SIZE QBOOT_BUF_SIZE
 #define QBOOT_CMPRS_BUF_SIZE  QBOOT_BUF_SIZE
@@ -188,7 +188,7 @@ static bool qbt_release_sign_check(const char *part_name, fw_info_t *fw_info)
     u32 release_sign = 0;
 
     fal_partition_t part = (fal_partition_t)fal_partition_find(part_name);
-    u32             pos = (((sizeof(fw_info_t) + fw_info->pkg_size) + 0x1F) & ~0x1F);
+    u32 pos = (((sizeof(fw_info_t) + fw_info->pkg_size) + (QBOOT_RELEASE_SIGN_ALIGN_SIZE - 1)) & ~(QBOOT_RELEASE_SIGN_ALIGN_SIZE - 1));
 
     if (fal_partition_read(part, pos, (u8 *)&release_sign, sizeof(u32)) < 0)
     {
@@ -196,15 +196,15 @@ static bool qbt_release_sign_check(const char *part_name, fw_info_t *fw_info)
         return false;
     }
 
-    return release_sign == 0;
+    return(release_sign == QBOOT_RELEASE_SIGN_WORD);
 }
 
 static bool qbt_release_sign_write(const char *part_name, fw_info_t *fw_info)
 {
-    u32 release_sign = 0;
+    u32 release_sign = QBOOT_RELEASE_SIGN_WORD;
 
     fal_partition_t part = (fal_partition_t)fal_partition_find(part_name);
-    u32             pos = (((sizeof(fw_info_t) + fw_info->pkg_size) + 0x1F) & ~0x1F);
+    u32 pos = (((sizeof(fw_info_t) + fw_info->pkg_size) + (QBOOT_RELEASE_SIGN_ALIGN_SIZE - 1)) & ~(QBOOT_RELEASE_SIGN_ALIGN_SIZE - 1));
 
     if (fal_partition_write(part, pos, (u8 *)&release_sign, sizeof(u32)) < 0)
     {
@@ -894,8 +894,9 @@ static bool qbt_fw_update(const char *dst_part_name, const char *src_part_name, 
     LOG_I("Qboot firmware update success.");
     return true;
 }
+
 #if 0
-RT_WEAK void qbt_jump_to_app(void)
+__WEAK void qbt_jump_to_app(void)
 {
     typedef void (*app_func_t)(void);
     u32        app_addr = QBOOT_APP_ADDR;
@@ -932,7 +933,9 @@ RT_WEAK void qbt_jump_to_app(void)
 
     LOG_E("Qboot jump to application fail.");
 }
-#endif 
+#else
+extern void qbt_jump_to_app(void);
+#endif
 
 #ifdef QBOOT_USING_STATUS_LED
 static void qbt_status_led_init(void)

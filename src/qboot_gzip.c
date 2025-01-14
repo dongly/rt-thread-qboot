@@ -13,6 +13,7 @@
 #include <string.h>
 #define ZLIB_CONST
 #include <zlib.h>
+#include <string.h>
 
 static z_stream qbt_strm;
 
@@ -24,7 +25,7 @@ void qbt_gzip_init(void)
 
 void qbt_gzip_set_in(const u8 *in_buf, u32 in_size)
 {
-    qbt_strm.next_in = in_buf;
+    qbt_strm.next_in = (void *)in_buf;
     qbt_strm.avail_in = in_size;
 }
 
